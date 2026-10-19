@@ -1,7 +1,8 @@
 # Matt Lee — Apps & experiments
 
 A responsive, static portfolio landing page for Math Viz and Tower Defense.
-Target Cloudflare Pages project: `eelwehttam` → `https://eelwehttam.pages.dev` (subject to availability).
+Cloudflare Pages project: `eelwehttam` → `https://eelwehttam.pages.dev`.
+Repository: https://github.com/Warsinger/eelwehttam
 
 ## Preview
 
@@ -18,12 +19,11 @@ The project illustrations are original SVG/CSS artwork, not screenshots. Google 
 
 ## Publish to Cloudflare Pages
 
-Create a free Pages project named `eelwehttam` in the intended Cloudflare account. If the name is available, Cloudflare assigns `eelwehttam.pages.dev`.
+The free Pages Direct Upload project `eelwehttam` has been created in the owner's Cloudflare account.
 
-For Git integration, select this repository, production branch `main`, no framework, no build command, and output directory `public`.
+Upload a ZIP of the **contents** of `public/` through the project's Cloudflare dashboard, then choose **Deploy site**. `index.html` must be at the ZIP root.
 
-Alternatively, use Direct Upload: authenticate with `npx wrangler login`, create the Pages project with `npx wrangler pages project create eelwehttam --production-branch main`, then run `npm run deploy`.
-Choose either Git integration or Direct Upload when creating the project. Never commit credentials.
+For later command-line updates, authenticate with `npx wrangler login`, then run `npm run deploy`. The project already exists; do not recreate it. Never commit credentials. GitHub pushes alone do not deploy this Direct Upload project.
 
 ## Links
 
