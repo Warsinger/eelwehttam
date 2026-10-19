@@ -1,0 +1,7 @@
+{
+  "name": "eelwehttam",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Matt Lee's apps and experiments",
+  "scripts": { "dev": "node scripts/serve.mjs", "start": "node scripts/serve.mjs", "deploy": "npx wrangler pages deploy public --project-name eelwehttam" }
+}
