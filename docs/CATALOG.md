@@ -17,7 +17,8 @@ textContent; metadata cannot inject markup or script URLs.
 
 Add screenshots to `data/images/` (PNG/JPEG/WebP, maximum 5 MiB each). Reference
 that path from JSON. To replace a screenshot, ADD a new filename, update JSON,
-and KEEP the old file. Image modification/deletion is rejected by CI so cached
+and KEEP the old file. Image modification/deletion is checked against the
+last published catalog on every publication path, including manual runs, so cached
 catalogs retain their screenshot URLs. All retained images are included in each
 catalog deployment with content-hashed names and immutable cache headers. Old
 images can be pruned only through a separately planned compatibility change.
@@ -29,12 +30,22 @@ Run `node --test scripts/*.test.mjs`, `node scripts/check-site.mjs` and
 ## Publishing independently
 
 After review/merge, a main push containing only `data/` changes validates and
-publishes the catalog; landing build, deployment and verification jobs SKIP.
+publishes the catalog; landing jobs SKIP when no earlier site change remains
+unpublished. Each target compares against its own published `version.json`,
+not just the previous push. If a newer unrelated push supersedes an unfinished
+run, the latest run carries forward that target’s pending changes.
 Site-code changes publish the landing page. Shared catalog validation/build or
 workflow changes can schedule both. A mixed commit can publish both projects.
-Both use the existing pinned shared workflow with separate artifacts, exact
-project/hostname guards, current-main/PR guards, explicit secrets and revision
-manifests. Catalog validation failures leave the previous published feed intact.
+The site uses the pinned shared workflow. The catalog uses the shared
+validation/comment scripts and shared upload action inside one project queue,
+with separate artifacts, exact project/hostname guards, current-main/PR guards,
+explicit secrets and revision manifests. Catalog image retention is rechecked
+after entering that queue, immediately before upload, against the then-current
+published revision; this also protects against a catalog published after the
+initial plan. New previews check production/main when they have no prior feed.
+Only a 404 means a target has not been published; network/API/invalid revision
+errors fail closed and require a retry or baseline repair. Force-pushed source
+revisions are fetched by exact SHA when needed; unavailable history fails closed. Catalog validation failures leave the previous published feed intact.
 Pages replaces a complete catalog bundle, so JSON and images belong to one
 release. Image URLs are retained across subsequent releases as explained above.
 
@@ -77,7 +88,8 @@ Record the catalog revision and verify the public JSON and images after changes.
 ## Verification
 
 PR checks cover schema/URL safety, cached/storage failures, unavailable/oversized
-feeds, image packaging and data-only routing. Hosted checks must verify browser
+feeds, image packaging, data-only routing, overlapping pushes, manual image
+retention and the serialized pre-upload recheck using temporary Git histories. Hosted checks must verify browser
 rendering, CORS, keyboard focus and narrow layouts. To demonstrate independence:
 record the landing version.json, publish a catalog-only preview update, reload
 the SAME site preview, and confirm its cards change while its revision stays the

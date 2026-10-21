@@ -134,19 +134,54 @@ jobs:
   catalog-deploy:
     needs: [catalog-build, setup-catalog]
     if: always() && needs.catalog-build.result == 'success' && (needs.setup-catalog.result == 'success' || needs.setup-catalog.result == 'skipped') && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.catalog))
-    uses: Warsinger/cloudflare-pages-deploy/.github/workflows/pages.yml@8c5e23604919f8d049d0a8630c61827e409f5304
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: cloudflare-${{ github.repository }}-vanity-app-catalog
+      cancel-in-progress: false
     permissions:
       contents: read
       pull-requests: write
       deployments: write
-    with:
-      deployment-ref: 8c5e23604919f8d049d0a8630c61827e409f5304
-      artifact-name: application-catalog
-      project-name: vanity-app-catalog
-      hostname: vanity-app-catalog.pages.dev
-      title: Application catalog
-      preview-pr: ${{ inputs.preview_pr }}
-      comment-marker: '<!-- application-catalog-preview -->'
-    secrets:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+      PREVIEW_PR: ${{ inputs.preview_pr }}
+      PAGES_PROJECT: vanity-app-catalog
+      PAGES_HOSTNAME: vanity-app-catalog.pages.dev
+      PAGES_TITLE: Application catalog
+      PAGES_COMMENT_MARKER: '<!-- application-catalog-preview -->'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: Warsinger/cloudflare-pages-deploy
+          ref: 8c5e23604919f8d049d0a8630c61827e409f5304
+          path: deployment-tools
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - uses: actions/download-artifact@v8
+        with:
+          name: application-catalog
+          path: build/pages
+      - name: Validate target, source and artifact with shared tooling
+        id: target
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node deployment-tools/scripts/deploy-pages.mjs validate
+      - name: Recheck retained images against the current published catalog
+        run: node scripts/changed-paths.mjs --catalog-guard
+      - name: Publish through shared upload action
+        uses: Warsinger/cloudflare-pages-deploy/upload@8ed38d395ac53e4d2172f0ad18e4b7fe0abfd014
+        with:
+          api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          account-id: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          github-token: ${{ github.token }}
+          command: pages deploy build/pages --project-name vanity-app-catalog --branch ${{ steps.target.outputs.branch }} --commit-hash ${{ github.sha }} --commit-dirty=false
+      - name: Update preview comment with shared tooling
+        run: node deployment-tools/scripts/deploy-pages.mjs comment

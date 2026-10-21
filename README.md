@@ -41,4 +41,6 @@ Run `node scripts/check-site.mjs` before pushing. Use the guarded Actions workfl
 
 Catalog editing, independent publication, previews, caching and fallback behavior
 are documented in [the catalog guide](docs/CATALOG.md). Data-only main pushes
-publish the free `vanity-app-catalog` Pages project and skip landing deployment.
+publish the free `vanity-app-catalog` Pages project and skip landing deployment
+unless an earlier site update is still unpublished. Each target catches up from
+its own last published revision.
