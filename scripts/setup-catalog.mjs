@@ -1,0 +1,11 @@
+if(process.env.GITHUB_REPOSITORY!=='Warsinger/vanity-landing-page'||process.env.GITHUB_EVENT_NAME!=='workflow_dispatch')throw Error('Setup requires an explicit repository workflow dispatch');
+const account=process.env.CLOUDFLARE_ACCOUNT_ID,token=process.env.CLOUDFLARE_API_TOKEN;
+if(!account||!token)throw Error('Missing Pages credentials');
+const base=`https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(account)}/pages/projects`;
+const headers={Authorization:`Bearer ${token}`,'Content-Type':'application/json'};
+let response=await fetch(base+'/vanity-app-catalog',{headers});
+if(response.status===404)response=await fetch(base,{method:'POST',headers,body:JSON.stringify({name:'vanity-app-catalog',production_branch:'main'})});
+if(!response.ok)throw Error(`Catalog project setup failed: HTTP ${response.status}`);
+const {success,result}=await response.json();
+if(!success||result.name!=='vanity-app-catalog'||result.production_branch!=='main'||result.source||result.subdomain!=='vanity-app-catalog.pages.dev')throw Error('Unexpected catalog project configuration');
+console.log('Existing free Direct Upload project confirmed: https://vanity-app-catalog.pages.dev');

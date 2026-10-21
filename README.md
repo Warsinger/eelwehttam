@@ -11,7 +11,9 @@ No build or dependency installation is required.
 
 ## Edit
 
-- `public/index.html`: introduction, app descriptions and profile links.
+- `public/index.html`: introduction, page structure and profile links.
+- `data/apps.json` and `data/images/`: independently published app catalog.
+- `public/catalog-fallback.json`: bundled fallback snapshot for unavailable feeds.
 - `public/style.css`: responsive layout, colors and typography.
 - `public/site.js`: footer year.
 - `public/images/`: avatar supplied by Matt and screenshots captured from the live apps.
@@ -34,3 +36,11 @@ Run `node scripts/check-site.mjs` before pushing. Use the guarded Actions workfl
 - https://tower-def.pages.dev/
 - https://github.com/Warsinger
 - https://www.linkedin.com/in/matthew-lee-devops/
+
+## Data-driven app cards
+
+Catalog editing, independent publication, previews, caching and fallback behavior
+are documented in [the catalog guide](docs/CATALOG.md). Data-only main pushes
+publish the free `vanity-app-catalog` Pages project and skip landing deployment
+unless an earlier site update is still unpublished. Each target catches up from
+its own last published revision.
