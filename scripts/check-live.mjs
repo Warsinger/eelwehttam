@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { setTimeout } from 'node:timers/promises';
 const digest = data => createHash('sha256').update(data).digest('hex');
-const paths = ['index.html', 'style.css', 'site.js', 'favicon.svg', 'images/matt-avatar.jpeg', 'images/math-viz.jpg', 'images/tower-defense.jpg'];
+const paths = ['index.html', 'style.css', 'site.js', 'favicon.svg', 'images/matt-avatar.jpeg', 'images/math-viz.jpg', 'images/tower-defense.jpg', 'images/space-invaders.png'];
 for (let attempt = 0; attempt < 6; attempt++) {
   try {
     for (const path of paths) {
