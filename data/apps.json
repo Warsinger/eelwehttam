@@ -48,6 +48,38 @@
       "theme": "game",
       "order": 2,
       "visible": true
+    },
+    {
+      "id": "game-of-life",
+      "name": "Game of Life",
+      "tagline": "Simple rules, living patterns",
+      "description": "Watch a random field of cells evolve under Conway’s rules. Adjust the board, density and speed to explore changing patterns.",
+      "image": "images/game-of-life-web-20261021.jpg",
+      "imageAlt": "Game of Life browser app showing green evolving cell patterns with board and density settings",
+      "imageWidth": 1265,
+      "imageHeight": 712,
+      "playUrl": "https://golgo.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/game-of-life-go",
+      "actionLabel": "Open Game of Life",
+      "theme": "math",
+      "order": 3,
+      "visible": true
+    },
+    {
+      "id": "rover",
+      "name": "Rover",
+      "tagline": "A LEGO rover on the move",
+      "description": "Drive a LEGO rover across a scrolling landscape. Move left and right, jump and boost again in midair using keyboard or on-screen controls.",
+      "image": "images/rover-web-20261021.jpg",
+      "imageAlt": "Rover browser game showing the LEGO rover on a scrolling landscape with game settings",
+      "imageWidth": 1265,
+      "imageHeight": 712,
+      "playUrl": "https://rovergo.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/rover-go",
+      "actionLabel": "Play Rover",
+      "theme": "game",
+      "order": 4,
+      "visible": true
     }
   ]
 }
