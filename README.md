@@ -2,7 +2,7 @@
 
 A responsive, static portfolio landing page for Math Viz and Tower Defense.
 Cloudflare Pages project: `eelwehttam` → `https://eelwehttam.pages.dev`.
-Repository: https://github.com/Warsinger/eelwehttam
+Repository: https://github.com/Warsinger/vanity-landing-page
 
 ## Preview
 
