@@ -22,11 +22,11 @@ The project cards show actual app screenshots. The SVG favicon embeds the suppli
 
 The free Pages Direct Upload project `eelwehttam` has been created in the owner's Cloudflare account.
 
-Every push to `main` runs `.github/workflows/deploy.yml`: it checks local asset references, uploads only `public/`, and verifies the published files match the commit. You can also start **Deploy website** manually from GitHub Actions on `main`. No pull request or separate approval is required.
+Every push to `main` runs `.github/workflows/deploy.yml`: it checks local asset references, uploads only `public/`, and verifies the published files match the commit. To publish manually, start **Deploy website** with **deploy** enabled. For a preview, select the current open same-repository PR branch and set **preview_pr** to its number. Ordinary PR events check assets and build an artifact without publishing or receiving deployment secrets.
 
-The workflow uses repository Actions secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The token needs Cloudflare Pages Edit in the intended account. GitHub actions are pinned to verified commit revisions. Deployments are serialized to prevent overlapping uploads.
+The workflow uses repository Actions secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The token needs Cloudflare Pages Edit in the intended account. Publishing uses the pinned [shared Cloudflare workflow](https://github.com/Warsinger/cloudflare-pages-deploy), with both workflow and script checkout pinned to the same commit. It validates the existing project, hostname and artifact revision, serializes uploads, and provides linked summaries and updateable preview comments. App-specific published-byte verification remains here and checks the selected production/preview URL.
 
-Run `node scripts/check-site.mjs` before pushing. For emergency manual updates, authenticate with `npx wrangler login`, then run `npm run deploy`. The project already exists; do not recreate it. Never commit credentials.
+Run `node scripts/check-site.mjs` before pushing. Use the guarded Actions workflow for manual publishing. The project already exists; do not recreate it. Never commit credentials.
 
 ## Links
 
