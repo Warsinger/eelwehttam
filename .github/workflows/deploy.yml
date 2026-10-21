@@ -1,41 +1,69 @@
 name: Deploy website
-
 on:
   push:
     branches: [main]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
-
+    inputs:
+      deploy:
+        description: Publish this revision (main production; previews require preview_pr)
+        type: boolean
+        default: false
+      preview_pr:
+        description: Open same-repository PR number for manual preview
+        type: string
 permissions:
   contents: read
-
-concurrency:
-  group: cloudflare-eelwehttam-production
-  cancel-in-progress: false
-
 jobs:
-  deploy:
-    if: github.ref == 'refs/heads/main'
+  build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    environment:
-      name: production
-      url: https://eelwehttam.pages.dev
     steps:
-      - name: Check out website
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
-      - name: Set up Node.js
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
-      - name: Check site assets
-        run: node scripts/check-site.mjs
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
+      - run: node scripts/check-site.mjs
+      - name: Prepare static artifact and revision
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; fs.cpSync('public','build/pages',{recursive:true}); fs.writeFileSync('build/pages/version.json',JSON.stringify({revision:process.env.GITHUB_SHA})+'\n');"
+      - uses: actions/upload-artifact@v7
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy public --project-name=eelwehttam --branch=main
-      - name: Verify published assets
+          name: landing-page-web
+          path: build/pages
+          if-no-files-found: error
+          retention-days: 14
+  deploy:
+    needs: build
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.deploy)
+    uses: Warsinger/cloudflare-pages-deploy/.github/workflows/pages.yml@8c5e23604919f8d049d0a8630c61827e409f5304
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    with:
+      deployment-ref: 8c5e23604919f8d049d0a8630c61827e409f5304
+      artifact-name: landing-page-web
+      project-name: eelwehttam
+      hostname: eelwehttam.pages.dev
+      title: Applications and projects
+      preview-pr: ${{ inputs.preview_pr }}
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  verify-published:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Verify published assets match this revision
+        env:
+          SITE_URL: ${{ github.ref == 'refs/heads/main' && 'https://eelwehttam.pages.dev' || format('https://pr-{0}.eelwehttam.pages.dev', inputs.preview_pr) }}
         run: node scripts/check-live.mjs
