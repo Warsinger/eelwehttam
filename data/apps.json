@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "apps": [
+    {
+      "id": "math-viz",
+      "name": "Math Viz",
+      "tagline": "Math, made visible",
+      "description": "An interactive environment for exploring mathematical equations, curves, and surfaces. Adjust parameters and examine the results in two and three dimensions.",
+      "image": "images/math-viz.jpg",
+      "imageAlt": "Math Viz plotting a three-dimensional sine and cosine surface with parameter controls",
+      "imageWidth": 1280,
+      "imageHeight": 720,
+      "playUrl": "https://math-viz.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/math-visualization",
+      "actionLabel": "Open Math Viz",
+      "theme": "math",
+      "order": 0,
+      "visible": true
+    },
+    {
+      "id": "tower-defense",
+      "name": "Tower Defense",
+      "tagline": "Strategy & resource management",
+      "description": "A strategy game built around tower placement and resource management. Build and upgrade defenses to protect your base against successive waves of enemies.",
+      "image": "images/tower-defense.jpg",
+      "imageAlt": "Tower Defense gameplay with towers defending the base against incoming spacecraft",
+      "imageWidth": 1280,
+      "imageHeight": 720,
+      "playUrl": "https://tower-def.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/tower-defense-go",
+      "actionLabel": "Play Tower Defense",
+      "theme": "game",
+      "order": 1,
+      "visible": true
+    },
+    {
+      "id": "space-invaders",
+      "name": "Space Invaders",
+      "tagline": "Arcade action",
+      "description": "Move your ship, dodge incoming fire and clear waves of aliens. Aim for a new high score as the levels speed up.",
+      "image": "images/space-invaders.png",
+      "imageAlt": "Space Invaders gameplay with alien formations, defensive barriers and the player's ship",
+      "imageWidth": 600,
+      "imageHeight": 800,
+      "playUrl": "https://alien-invaders.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/space-invaders-go",
+      "actionLabel": "Play Space Invaders",
+      "theme": "game",
+      "order": 2,
+      "visible": true
+    }
+  ]
+}

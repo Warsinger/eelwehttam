@@ -10,13 +10,41 @@ on:
         description: Publish this revision (main production; previews require preview_pr)
         type: boolean
         default: false
+      catalog:
+        description: Publish catalog data (main production; previews require preview_pr)
+        type: boolean
+        default: false
+      setup_catalog:
+        description: Create the approved free catalog Pages project if missing
+        type: boolean
+        default: false
       preview_pr:
         description: Open same-repository PR number for manual preview
         type: string
 permissions:
   contents: read
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      site: ${{ steps.paths.outputs.site }}
+      catalog: ${{ steps.paths.outputs.catalog }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Test catalog and classify changed paths
+        id: paths
+        run: |
+          node --test scripts/*.test.mjs
+          node scripts/changed-paths.mjs
   build:
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -27,8 +55,9 @@ jobs:
           node-version: '24'
       - run: node scripts/check-site.mjs
       - name: Prepare static artifact and revision
-        run: |
-          node --input-type=module -e "import fs from 'node:fs'; fs.cpSync('public','build/pages',{recursive:true}); fs.writeFileSync('build/pages/version.json',JSON.stringify({revision:process.env.GITHUB_SHA})+'\n');"
+        env:
+          PREVIEW_PR: ${{ github.event_name == 'workflow_dispatch' && github.ref != 'refs/heads/main' && inputs.preview_pr || '' }}
+        run: node scripts/build-site.mjs
       - uses: actions/upload-artifact@v7
         with:
           name: landing-page-web
@@ -65,5 +94,59 @@ jobs:
           node-version: '24'
       - name: Verify published assets match this revision
         env:
+          PREVIEW_PR: ${{ github.ref != 'refs/heads/main' && inputs.preview_pr || '' }}
           SITE_URL: ${{ github.ref == 'refs/heads/main' && 'https://eelwehttam.pages.dev' || format('https://pr-{0}.eelwehttam.pages.dev', inputs.preview_pr) }}
-        run: node scripts/check-live.mjs
+        run: |
+          node scripts/build-site.mjs
+          node scripts/check-live.mjs
+  catalog-build:
+    needs: changes
+    if: needs.changes.outputs.catalog == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: node scripts/build-catalog.mjs
+      - uses: actions/upload-artifact@v7
+        with:
+          name: application-catalog
+          path: build/catalog
+          if-no-files-found: error
+          retention-days: 14
+  setup-catalog:
+    if: github.event_name == 'workflow_dispatch' && inputs.setup_catalog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - run: node scripts/setup-catalog.mjs
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+  catalog-deploy:
+    needs: [catalog-build, setup-catalog]
+    if: always() && needs.catalog-build.result == 'success' && (needs.setup-catalog.result == 'success' || needs.setup-catalog.result == 'skipped') && ((github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.catalog))
+    uses: Warsinger/cloudflare-pages-deploy/.github/workflows/pages.yml@8c5e23604919f8d049d0a8630c61827e409f5304
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+    with:
+      deployment-ref: 8c5e23604919f8d049d0a8630c61827e409f5304
+      artifact-name: application-catalog
+      project-name: vanity-app-catalog
+      hostname: vanity-app-catalog.pages.dev
+      title: Application catalog
+      preview-pr: ${{ inputs.preview_pr }}
+      comment-marker: '<!-- application-catalog-preview -->'
+    secrets:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
