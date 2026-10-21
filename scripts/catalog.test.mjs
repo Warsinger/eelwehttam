@@ -6,7 +6,7 @@ import path from 'node:path';
 import {validateCatalog,fetchCatalog,readCached,saveCached} from '../public/catalog-model.mjs';
 import {buildCatalog} from './build-catalog.mjs';
 import {classify,checkImageChanges} from './changed-paths.mjs';
-const source=JSON.parse(fs.readFileSync('data/apps.json','utf8'));
+const source=JSON.parse(fs.readFileSync('public/catalog-fallback.json','utf8'));
 const base='https://catalog.example/apps.json';
 test('catalog preserves current app links, ordering and visibility',()=>{
   const copy=structuredClone(source);copy.apps[0].order=5;copy.apps[1].visible=false;
@@ -44,4 +44,5 @@ test('data-only changes never schedule the landing build; shared validation chan
   assert.doesNotThrow(()=>checkImageChanges([{status:'A',file:'data/images/new.png'}]));
   for(const status of ['M','D'])assert.throws(()=>checkImageChanges([{status,file:'data/images/old.png'}]),/retained/);
 });
+
 
