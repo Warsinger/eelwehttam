@@ -30,8 +30,8 @@ test('invalid/offline/oversized feeds never replace a saved catalog',async()=>{
 test('catalog packaging hashes images, includes retained images, and sets public/cache headers',()=>{
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'catalog-build-'));
   try{
-    const published=buildCatalog('data',path.join(dir,'catalog'),'a'.repeat(40));
-    for(const app of published.apps){assert.match(app.image,/^images\/[a-f0-9]{64}\./);assert.ok(fs.existsSync(path.join(dir,'catalog',app.image)));}
+    const published=buildCatalog('data',path.join(dir,'nested','catalog'),'a'.repeat(40));
+    for(const app of published.apps){assert.match(app.image,/^images\/[a-f0-9]{64}\./);assert.ok(fs.existsSync(path.join(dir,'nested','catalog',app.image)));}
     assert.equal(published.revision,'a'.repeat(40));assert.match(fs.readFileSync(path.join(dir,'catalog','_headers'),'utf8'),/Access-Control-Allow-Origin: \*/);
     const fixture=path.join(dir,'fixture');fs.cpSync('data',fixture,{recursive:true});const bad=structuredClone(source);bad.apps[0].image='../private.txt';fs.writeFileSync(path.join(fixture,'apps.json'),JSON.stringify(bad));
     assert.throws(()=>buildCatalog(fixture,path.join(dir,'bad'),'b'.repeat(40)),/image reference/);assert.equal(fs.existsSync(path.join(dir,'bad')),false);

@@ -25,6 +25,7 @@ export function buildCatalog(source, output, revision) {
     return {...app,image:files.get(app.image).key};
   });
   const published={schemaVersion:1,revision,apps};validateCatalog(published,'https://catalog.example/apps.json');
+  fs.mkdirSync(path.dirname(output),{recursive:true});
   fs.mkdirSync(output,{recursive:false});fs.mkdirSync(path.join(output,'images'));
   for (const {key,bytes} of files.values())fs.writeFileSync(path.join(output,key),bytes);
   fs.writeFileSync(path.join(output,'apps.json'),JSON.stringify(published)+'\n');
