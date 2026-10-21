@@ -48,6 +48,22 @@
       "theme": "game",
       "order": 2,
       "visible": true
+    },
+    {
+      "id": "catalog-update-check",
+      "name": "Catalog update check",
+      "tagline": "Temporary preview check",
+      "description": "This temporary card verifies independent catalog publishing and will be removed before review.",
+      "image": "images/space-invaders.png",
+      "imageAlt": "Space Invaders gameplay with alien formations, defensive barriers and the player's ship",
+      "imageWidth": 600,
+      "imageHeight": 800,
+      "playUrl": "https://alien-invaders.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/space-invaders-go",
+      "actionLabel": "Open preview check",
+      "theme": "game",
+      "order": 3,
+      "visible": true
     }
   ]
 }
