@@ -80,6 +80,22 @@
       "theme": "game",
       "order": 4,
       "visible": true
+    },
+    {
+      "id": "go-rpg",
+      "name": "Go RPG",
+      "tagline": "An early RPG adventure",
+      "description": "Explore a tiled board, battle monsters and collect treasure and health packs. Built in Go with keyboard and on-screen controls.",
+      "image": "images/gorpg-web-20261023.jpg",
+      "imageAlt": "Go RPG showing the player, monsters and health pickups on a tiled board",
+      "imageWidth": 1265,
+      "imageHeight": 712,
+      "playUrl": "https://gorpg.pages.dev/",
+      "sourceUrl": "https://github.com/Warsinger/golang-rpg",
+      "actionLabel": "Play Go RPG",
+      "theme": "game",
+      "order": 5,
+      "visible": true
     }
   ]
 }
